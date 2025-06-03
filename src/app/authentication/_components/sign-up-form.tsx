@@ -23,6 +23,7 @@ import { authClient } from "@lib/auth-client";
 import { Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const registerSchema = z.object({
@@ -58,6 +59,15 @@ export function SignUpForm() {
       {
         onSuccess: () => {
           redirect("/dashboard");
+        },
+        onError: (ctx) => {
+          if (ctx.error.code === "USER_ALREADY_EXISTS") {
+            toast.error("E-mail já cadastrado.");
+
+            return;
+          }
+
+          toast.error("Erro ao criar conta");
         },
       },
     );

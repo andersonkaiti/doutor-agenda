@@ -1,4 +1,7 @@
+import { db } from "@db/index";
+import { usersToClinicsTable } from "@db/schema";
 import { auth } from "@lib/auth";
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -11,6 +14,15 @@ export default async function DashboardPage() {
 
   if (!session?.user) {
     redirect("/authentication");
+  }
+
+  // Preciso pegar as clínicas do usuário
+  const clinics = await db.query.usersToClinicsTable.findMany({
+    where: eq(usersToClinicsTable.userId, session.user.id),
+  });
+
+  if (clinics.length === 0) {
+    redirect("/clinic-form");
   }
 
   return (

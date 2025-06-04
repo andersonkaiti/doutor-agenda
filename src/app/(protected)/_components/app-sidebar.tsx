@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 
 // Menu items.
 const items = [
@@ -57,6 +57,7 @@ const items = [
 
 export function AppSidebar() {
   const session = authClient.useSession();
+  const pathname = usePathname();
 
   async function handleSignOut() {
     await authClient.signOut({
@@ -80,7 +81,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>

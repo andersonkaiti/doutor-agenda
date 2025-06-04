@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@components/ui/button";
+import { Avatar, AvatarFallback } from "@components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,6 +56,8 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const session = authClient.useSession();
+
   async function handleSignOut() {
     await authClient.signOut({
       fetchOptions: {
@@ -95,7 +97,17 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button>Clínica</Button>
+                <SidebarMenuButton size="lg">
+                  <Avatar>
+                    <AvatarFallback>F</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm">{session.data?.user.clinic.name}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {session.data?.user.email}
+                    </p>
+                  </div>
+                </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={handleSignOut}>

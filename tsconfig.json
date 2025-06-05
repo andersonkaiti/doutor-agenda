@@ -19,6 +19,7 @@
       }
     ],
     "paths": {
+      "@actions/*": ["./src/actions/*"],
       "@lib/*": ["./src/lib/*"],
       "@components/*": ["./src/components/*"],
       "@db/*": ["./src/db/*"],

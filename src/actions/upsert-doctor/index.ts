@@ -43,6 +43,8 @@ export const upsertDoctor = actionClient
       throw new Error("Clinic not found");
     }
 
+    console.log(parsedInput.id);
+
     await db
       .insert(doctorsTable)
       .values({

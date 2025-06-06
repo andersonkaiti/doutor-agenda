@@ -109,6 +109,7 @@ export function DoctorCard({ doctor }: IDoctorCardProps) {
               availableToTime: availability.to.format("HH:mm:ss"),
               availableFromTime: availability.from.format("HH:mm:ss"),
             }}
+            isOpen={isUpsertDoctorDialogOpen}
             onSuccess={() => setIsUpsertDoctorDialogOpen(false)}
           />
         </Dialog>

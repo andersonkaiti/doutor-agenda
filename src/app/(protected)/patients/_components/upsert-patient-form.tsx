@@ -27,6 +27,7 @@ import { patientsTable } from "@db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -46,11 +47,13 @@ const patientFormSchema = z.object({
 });
 
 interface IUpsertPatientFormProps {
+  isOpen: boolean;
   patient?: typeof patientsTable.$inferSelect;
   onSuccess: () => void;
 }
 
 export function UpsertPatientForm({
+  isOpen,
   patient,
   onSuccess,
 }: IUpsertPatientFormProps) {
@@ -64,6 +67,17 @@ export function UpsertPatientForm({
       sex: patient?.sex ?? undefined,
     },
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        name: patient?.name ?? "",
+        email: patient?.email ?? "",
+        phoneNumber: patient?.phoneNumber ?? "",
+        sex: patient?.sex ?? undefined,
+      });
+    }
+  }, [isOpen, form, patient]);
 
   const upsertPatientAction = useAction(upsertPatient, {
     onSuccess: () => {

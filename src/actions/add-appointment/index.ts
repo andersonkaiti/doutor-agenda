@@ -8,10 +8,10 @@ import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
-import { upsertAppointmentSchema } from "./schema";
+import { addAppointmentSchema } from "./schema";
 
-export const upsertAppointment = actionClient
-  .schema(upsertAppointmentSchema)
+export const addAppointment = actionClient
+  .schema(addAppointmentSchema)
   .action(async ({ parsedInput }) => {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -34,7 +34,6 @@ export const upsertAppointment = actionClient
       .insert(appointmentsTable)
       .values({
         ...parsedInput,
-        id: parsedInput.id,
         clinicId: session.user.clinic.id,
         date: appointmentDateTime,
       })

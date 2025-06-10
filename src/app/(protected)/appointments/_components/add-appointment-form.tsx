@@ -1,4 +1,4 @@
-import { upsertAppointment } from "@actions/upsert-appointment";
+import { addAppointment } from "@actions/add-appointment";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import {
@@ -62,7 +62,7 @@ const formSchema = z.object({
   }),
 });
 
-interface IUpsertAppointmentFormProps {
+interface IAddAppointmentFormProps {
   isOpen: boolean;
   patients: (typeof patientsTable.$inferSelect)[];
   doctors: (typeof doctorsTable.$inferSelect)[];
@@ -70,13 +70,13 @@ interface IUpsertAppointmentFormProps {
   onSuccess: () => void;
 }
 
-export function UpsertAppointmentForm({
+export function AddAppointmentForm({
   isOpen,
   onSuccess,
   appointment,
   patients,
   doctors,
-}: IUpsertAppointmentFormProps) {
+}: IAddAppointmentFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     shouldUnregister: true,
     resolver: zodResolver(formSchema),
@@ -119,7 +119,7 @@ export function UpsertAppointmentForm({
     }
   }, [isOpen, form, appointment]);
 
-  const upsertAppointmentAction = useAction(upsertAppointment, {
+  const addAppointmentAction = useAction(addAppointment, {
     onSuccess: () => {
       toast.success("Agendamento criado com sucesso.");
       onSuccess?.();
@@ -130,7 +130,7 @@ export function UpsertAppointmentForm({
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    upsertAppointmentAction.execute({
+    addAppointmentAction.execute({
       ...values,
       id: appointment?.id,
       appointmentPriceInCents: values.appointmentPrice * 100,
@@ -350,8 +350,8 @@ export function UpsertAppointmentForm({
           />
 
           <DialogFooter>
-            <Button type="submit" disabled={upsertAppointmentAction.isPending}>
-              {upsertAppointmentAction.isPending && (
+            <Button type="submit" disabled={addAppointmentAction.isPending}>
+              {addAppointmentAction.isPending && (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               )}
               Criar agendamento

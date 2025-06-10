@@ -2,20 +2,22 @@
 
 import { Button } from "@components/ui/button";
 import { Dialog, DialogTrigger } from "@components/ui/dialog";
-import { doctorsTable, patientsTable } from "@db/schema";
+import { appointmentsTable, doctorsTable, patientsTable } from "@db/schema";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-import { UpsertAppointmentForm } from "./upsert-appointment-form";
+import { AddAppointmentForm } from "./add-appointment-form";
 
 interface IAddAppointmentButtonProps {
   patients: (typeof patientsTable.$inferSelect)[];
   doctors: (typeof doctorsTable.$inferSelect)[];
+  appointment?: typeof appointmentsTable.$inferSelect;
 }
 
 export function AddAppointmentButton({
   patients,
   doctors,
+  appointment,
 }: IAddAppointmentButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -27,9 +29,10 @@ export function AddAppointmentButton({
           Adicionar agendamento
         </Button>
       </DialogTrigger>
-      <UpsertAppointmentForm
+      <AddAppointmentForm
         isOpen={isOpen}
         onSuccess={() => setIsOpen(false)}
+        appointment={appointment}
         patients={patients}
         doctors={doctors}
       />

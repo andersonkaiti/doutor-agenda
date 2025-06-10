@@ -162,7 +162,7 @@ export function UpsertPatientForm({
               <FormItem>
                 <FormLabel>Sexo</FormLabel>
                 <FormControl>
-                  <Select {...field}>
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione o sexo" />
                     </SelectTrigger>

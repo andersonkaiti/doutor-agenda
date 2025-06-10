@@ -18,7 +18,7 @@ export function AddDoctorButton() {
           Adicionar médico
         </Button>
       </DialogTrigger>
-      <UpsertDoctorForm onSuccess={() => setIsOpen(false)} />
+      <UpsertDoctorForm isOpen={isOpen} onSuccess={() => setIsOpen(false)} />
     </Dialog>
   );
 }

@@ -1,4 +1,5 @@
 import { addAppointment } from "@actions/add-appointment";
+import { getAvailableTimes } from "@actions/get-available-times";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import {
@@ -25,17 +26,17 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@components/ui/select";
 import { appointmentsTable, doctorsTable, patientsTable } from "@db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import dayjs from "dayjs";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useEffect } from "react";
@@ -89,13 +90,23 @@ export function AddAppointmentForm({
     },
   });
 
-  const watchedDoctorId = form.watch("doctorId");
-  const watchedPatientId = form.watch("patientId");
+  const selectedDoctorId = form.watch("doctorId");
+  const selectedPatientId = form.watch("patientId");
+  const selectedDate = form.watch("date");
+
+  const { data: availableTimes } = useQuery({
+    queryKey: ["available-times", selectedDate, selectedDoctorId],
+    queryFn: () =>
+      getAvailableTimes({
+        date: dayjs(selectedDate).format("YYYY-MM-DD"),
+        doctorId: selectedDoctorId,
+      }),
+  });
 
   useEffect(() => {
-    if (watchedDoctorId) {
+    if (selectedDoctorId) {
       const selectedDoctor = doctors.find(
-        (doctor) => doctor.id === watchedDoctorId,
+        (doctor) => doctor.id === selectedDoctorId,
       );
 
       if (selectedDoctor) {
@@ -105,7 +116,7 @@ export function AddAppointmentForm({
         );
       }
     }
-  }, [watchedDoctorId, doctors, form]);
+  }, [selectedDoctorId, doctors, form]);
 
   useEffect(() => {
     if (isOpen) {
@@ -132,12 +143,11 @@ export function AddAppointmentForm({
   function onSubmit(values: z.infer<typeof formSchema>) {
     addAppointmentAction.execute({
       ...values,
-      id: appointment?.id,
       appointmentPriceInCents: values.appointmentPrice * 100,
     });
   }
 
-  const isDateTimeEnabled = watchedPatientId && watchedDoctorId;
+  const isDateTimeEnabled = selectedPatientId && selectedDoctorId;
 
   return (
     <DialogContent className="sm:max-w-[500px]">
@@ -226,7 +236,7 @@ export function AddAppointmentForm({
                   decimalSeparator=","
                   prefix="R$ "
                   allowNegative={false}
-                  disabled={!watchedDoctorId}
+                  disabled={!selectedDoctorId}
                   customInput={Input}
                 />
                 <FormMessage />
@@ -287,7 +297,7 @@ export function AddAppointmentForm({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  disabled={!isDateTimeEnabled}
+                  disabled={!isDateTimeEnabled || !selectedDate}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
@@ -295,53 +305,16 @@ export function AddAppointmentForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Manhã</SelectLabel>
-                      <SelectItem value="05:00:00">05:00</SelectItem>
-                      <SelectItem value="05:30:00">05:30</SelectItem>
-                      <SelectItem value="06:00:00">06:00</SelectItem>
-                      <SelectItem value="06:30:00">06:30</SelectItem>
-                      <SelectItem value="07:00:00">07:00</SelectItem>
-                      <SelectItem value="07:30:00">07:30</SelectItem>
-                      <SelectItem value="08:00:00">08:00</SelectItem>
-                      <SelectItem value="08:30:00">08:30</SelectItem>
-                      <SelectItem value="09:00:00">09:00</SelectItem>
-                      <SelectItem value="09:30:00">09:30</SelectItem>
-                      <SelectItem value="10:00:00">10:00</SelectItem>
-                      <SelectItem value="10:30:00">10:30</SelectItem>
-                      <SelectItem value="11:00:00">11:00</SelectItem>
-                      <SelectItem value="11:30:00">11:30</SelectItem>
-                      <SelectItem value="12:00:00">12:00</SelectItem>
-                      <SelectItem value="12:30:00">12:30</SelectItem>
-                    </SelectGroup>
-                    <SelectGroup>
-                      <SelectLabel>Tarde</SelectLabel>
-                      <SelectItem value="13:00:00">13:00</SelectItem>
-                      <SelectItem value="13:30:00">13:30</SelectItem>
-                      <SelectItem value="14:00:00">14:00</SelectItem>
-                      <SelectItem value="14:30:00">14:30</SelectItem>
-                      <SelectItem value="15:00:00">15:00</SelectItem>
-                      <SelectItem value="15:30:00">15:30</SelectItem>
-                      <SelectItem value="16:00:00">16:00</SelectItem>
-                      <SelectItem value="16:30:00">16:30</SelectItem>
-                      <SelectItem value="17:00:00">17:00</SelectItem>
-                      <SelectItem value="17:30:00">17:30</SelectItem>
-                      <SelectItem value="18:00:00">18:00</SelectItem>
-                      <SelectItem value="18:30:00">18:30</SelectItem>
-                    </SelectGroup>
-                    <SelectGroup>
-                      <SelectLabel>Noite</SelectLabel>
-                      <SelectItem value="19:00:00">19:00</SelectItem>
-                      <SelectItem value="19:30:00">19:30</SelectItem>
-                      <SelectItem value="20:00:00">20:00</SelectItem>
-                      <SelectItem value="20:30:00">20:30</SelectItem>
-                      <SelectItem value="21:00:00">21:00</SelectItem>
-                      <SelectItem value="21:30:00">21:30</SelectItem>
-                      <SelectItem value="22:00:00">22:00</SelectItem>
-                      <SelectItem value="22:30:00">22:30</SelectItem>
-                      <SelectItem value="23:00:00">23:00</SelectItem>
-                      <SelectItem value="23:30:00">23:30</SelectItem>
-                    </SelectGroup>
+                    {availableTimes?.data?.map((time) => (
+                      <SelectItem
+                        key={time.value}
+                        value={time.value}
+                        disabled={!time.available}
+                      >
+                        {time.label}{" "}
+                        {!time.available && <span>(Indisponível)</span>}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />

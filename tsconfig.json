@@ -25,6 +25,7 @@
       "@helpers/*": ["./src/helpers/*"],
       "@hooks/*": ["./src/hooks/*"],
       "@lib/*": ["./src/lib/*"],
+      "@providers/*": ["./src/providers/*"],
       "@/*": ["./src/*"]
     }
   },

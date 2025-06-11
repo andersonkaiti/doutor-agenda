@@ -28,8 +28,6 @@ export const appointmentsTableColumns: ColumnDef<Appointment>[] = [
     accessorKey: "patient.name",
     header: "Paciente",
     cell: ({ row: { original: appointment } }) => {
-      console.log(appointment);
-
       return appointment.patient.name;
     },
   },

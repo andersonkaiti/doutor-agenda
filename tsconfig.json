@@ -21,6 +21,7 @@
     "paths": {
       "@actions/*": ["./src/actions/*"],
       "@components/*": ["./src/components/*"],
+      "@data/*": ["./src/data/*"],
       "@db/*": ["./src/db/*"],
       "@helpers/*": ["./src/helpers/*"],
       "@hooks/*": ["./src/hooks/*"],

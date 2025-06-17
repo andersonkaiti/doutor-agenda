@@ -25,7 +25,7 @@ export function AddAppointmentButton({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="mr-2 size-4" />
+          <Plus />
           Adicionar agendamento
         </Button>
       </DialogTrigger>

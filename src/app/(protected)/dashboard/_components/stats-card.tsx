@@ -53,7 +53,7 @@ export function StatsCard({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Badge className="bg-primary/10 text-primary rounded-full p-2.5">
-                <stat.icon className="size-4" />
+                <stat.icon className="!size-5" />
               </Badge>
               <span className="text-sm font-medium text-gray-500">
                 {stat.title}

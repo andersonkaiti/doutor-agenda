@@ -1,3 +1,5 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
+import { DataTable } from "@components/ui/data-table";
 import {
   PageActions,
   PageContainer,
@@ -12,9 +14,11 @@ import { appointmentsTable, doctorsTable, patientsTable } from "@db/schema";
 import { auth } from "@lib/auth";
 import dayjs from "dayjs";
 import { and, count, desc, eq, gte, lte, sql, sum } from "drizzle-orm";
+import { Calendar } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { appointmentsTableColumns } from "../appointments/_components/table-columns";
 import { AppointmentsChart } from "./_components/appointments-chart";
 import { DatePicker } from "./_components/date-picker";
 import { StatsCard } from "./_components/stats-card";
@@ -60,6 +64,7 @@ export default async function DashboardPage({
     [totalDoctors],
     topDoctors,
     topSpecialities,
+    dailyAppointments,
   ] = await Promise.all([
     db
       .select({
@@ -138,6 +143,16 @@ export default async function DashboardPage({
       .groupBy(doctorsTable.speciality)
       .orderBy(desc(count(appointmentsTable.id)))
       .limit(10),
+    db.query.appointmentsTable.findMany({
+      where: and(
+        eq(appointmentsTable.clinicId, session.user.clinic.id),
+        eq(appointmentsTable.date, new Date(from)),
+      ),
+      with: {
+        patient: true,
+        doctor: true,
+      },
+    }),
   ]);
 
   const chartStartDate = dayjs().subtract(10, "days").startOf("day").toDate();
@@ -190,7 +205,23 @@ export default async function DashboardPage({
           <TopDoctors doctors={topDoctors} />
         </div>
         <div className="grid grid-cols-[2.25fr_1fr] gap-4">
-          {/* Tabela */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                <div className="flex items-center gap-2">
+                  <Calendar className="size-4" />
+                  Agendamentos de hoje
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={appointmentsTableColumns}
+                data={dailyAppointments}
+              />
+            </CardContent>
+          </Card>
+
           <TopSpecialities topSpecialities={topSpecialities} />
         </div>
       </PageContent>

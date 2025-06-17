@@ -4,7 +4,7 @@ export function PageContainer({ children }: { children: React.ReactNode }) {
 
 export function PageHeader({ children }: { children: React.ReactNode }) {
   return (
-    <header className="flex w-full items-center justify-between">
+    <header className="flex w-full flex-wrap items-center justify-between gap-4 lg:flex-nowrap">
       {children}
     </header>
   );

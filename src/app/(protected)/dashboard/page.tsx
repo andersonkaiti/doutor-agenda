@@ -104,11 +104,11 @@ export default async function DashboardPage({
           totalPatients={totalPatients ? Number(totalPatients.total) : 0}
           totalDoctors={totalDoctors ? Number(totalDoctors.total) : 0}
         />
-        <div className="grid grid-cols-[2.25fr_1fr] gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-[2.25fr_1fr]">
           <AppointmentsChart dailyAppointmentsData={dailyAppointmentsData} />
           <TopDoctors doctors={topDoctors} />
         </div>
-        <div className="grid grid-cols-[2.25fr_1fr] gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-[2.25fr_1fr]">
           <Card>
             <CardHeader>
               <CardTitle>

@@ -7,16 +7,19 @@ import { Card, CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { cn } from "@lib/utils";
 import { loadStripe } from "@stripe/stripe-js";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { redirect } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 
 interface SubscriptionPlanProps {
   active?: boolean;
   className?: string;
+  userEmail: string;
 }
 
 export function SubscriptionPlan({
   active = false,
   className,
+  userEmail,
 }: SubscriptionPlanProps) {
   const createCheckoutSessionAction = useAction(createStripeCheckout, {
     onSuccess: async ({ data }) => {
@@ -55,6 +58,12 @@ export function SubscriptionPlan({
     createCheckoutSessionAction.execute();
   }
 
+  function handleManagePlanClick() {
+    redirect(
+      `${process.env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_URL}?prefilled_email=${userEmail}`,
+    );
+  }
+
   return (
     <Card
       className={cn(
@@ -68,7 +77,7 @@ export function SubscriptionPlan({
           {active && (
             <Badge
               variant="secondary"
-              className="bg-primary/10 text-primary hover:bg-primary/10"
+              className="bg-emerald-100 text-emerald-600 hover:bg-emerald-100"
             >
               Atual
             </Badge>
@@ -100,7 +109,7 @@ export function SubscriptionPlan({
         <Button
           className="w-full border border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
           variant="outline"
-          onClick={active ? () => {} : handleSubscribeClick}
+          onClick={active ? handleManagePlanClick : handleSubscribeClick}
           disabled={createCheckoutSessionAction.isExecuting}
         >
           {createCheckoutSessionAction.isExecuting && (

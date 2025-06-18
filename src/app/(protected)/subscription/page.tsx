@@ -25,6 +25,10 @@ export default async function SubscriptionPage() {
     redirect("/clinic-form");
   }
 
+  if (!session.user.plan) {
+    redirect("/new-subscription");
+  }
+
   return (
     <PageContainer>
       <PageHeader>

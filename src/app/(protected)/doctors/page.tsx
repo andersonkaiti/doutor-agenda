@@ -30,6 +30,10 @@ export default async function DoctorsPage() {
     redirect("/clinic-form");
   }
 
+  if (!session.user.plan) {
+    redirect("/subscription");
+  }
+
   const doctors = await db.query.doctorsTable.findMany({
     where: eq(doctorsTable.clinicId, session.user.clinic.id),
   });

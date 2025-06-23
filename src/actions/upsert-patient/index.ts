@@ -2,34 +2,20 @@
 
 import { db } from "@db/index";
 import { patientsTable } from "@db/schema";
-import { auth } from "@lib/auth";
-import { actionClient } from "@lib/next-safe-action";
+import { protectedWithClinicActionClient } from "@lib/next-safe-action";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 
 import { patientFormSchema } from "./schema";
 
-export const upsertPatient = actionClient
+export const upsertPatient = protectedWithClinicActionClient
   .schema(patientFormSchema)
-  .action(async ({ parsedInput }) => {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session?.user) {
-      throw new Error("Unauthorized");
-    }
-
-    if (!session?.user?.clinic?.id) {
-      throw new Error("Clinic not found");
-    }
-
+  .action(async ({ parsedInput, ctx }) => {
     await db
       .insert(patientsTable)
       .values({
         ...parsedInput,
         id: parsedInput.id,
-        clinicId: session?.user?.clinic.id,
+        clinicId: ctx.user.clinic.id,
       })
       .onConflictDoUpdate({
         target: [patientsTable.id],

@@ -2,28 +2,18 @@
 
 import { db } from "@db/index";
 import { patientsTable } from "@db/schema";
-import { auth } from "@lib/auth";
-import { actionClient } from "@lib/next-safe-action";
+import { protectedActionClient } from "@lib/next-safe-action";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { z } from "zod";
 
-export const deletePatient = actionClient
+export const deletePatient = protectedActionClient
   .schema(
     z.object({
       id: z.string().uuid(),
     }),
   )
-  .action(async ({ parsedInput }) => {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session?.user) {
-      throw new Error("Unauthorized");
-    }
-
+  .action(async ({ parsedInput, ctx }) => {
     const patient = await db.query.patientsTable.findFirst({
       where: eq(patientsTable.id, parsedInput.id),
     });
@@ -32,7 +22,7 @@ export const deletePatient = actionClient
       throw new Error("Paciente não encontrado");
     }
 
-    if (patient.clinicId !== session.user.clinic?.id) {
+    if (patient.clinicId !== ctx.user.clinic?.id) {
       throw new Error("Paciente não encontrado");
     }
 

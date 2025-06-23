@@ -3,19 +3,17 @@
 import { db } from "@db/index";
 import { appointmentsTable, doctorsTable } from "@db/schema";
 import { generateTimeSlots } from "@helpers/time";
-import { auth } from "@lib/auth";
-import { actionClient } from "@lib/next-safe-action";
+import { protectedWithClinicActionClient } from "@lib/next-safe-action";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import { z } from "zod";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export const getAvailableTimes = actionClient
+export const getAvailableTimes = protectedWithClinicActionClient
   .schema(
     z.object({
       doctorId: z.string().uuid(),
@@ -23,18 +21,6 @@ export const getAvailableTimes = actionClient
     }),
   )
   .action(async ({ parsedInput }) => {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session) {
-      throw new Error("Unauthorized");
-    }
-
-    if (!session.user.clinic) {
-      throw new Error("Clinic not found");
-    }
-
     const doctor = await db.query.doctorsTable.findFirst({
       where: eq(doctorsTable.id, parsedInput.doctorId),
     });

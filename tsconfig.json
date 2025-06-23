@@ -24,6 +24,7 @@
       "@data/*": ["./src/data/*"],
       "@db/*": ["./src/db/*"],
       "@helpers/*": ["./src/helpers/*"],
+      "@hocs/*": ["./src/hocs/*"],
       "@hooks/*": ["./src/hooks/*"],
       "@lib/*": ["./src/lib/*"],
       "@providers/*": ["./src/providers/*"],

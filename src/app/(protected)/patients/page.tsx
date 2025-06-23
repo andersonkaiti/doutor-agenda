@@ -10,10 +10,10 @@ import {
 } from "@components/ui/page-container";
 import { db } from "@db/index";
 import { patientsTable } from "@db/schema";
+import { WithAuthentication } from "@hocs/with-authentication";
 import { auth } from "@lib/auth";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 
 import { AddPatientButton } from "./_components/add-patient-button";
 import { patientsTableColumns } from "./_components/table-columns";
@@ -23,38 +23,30 @@ export default async function PatientsPage() {
     headers: await headers(),
   });
 
-  if (!session?.user) {
-    redirect("/authentication");
-  }
-
-  if (!session.user.clinic) {
-    redirect("/clinic-form");
-  }
-
-  if (!session.user.plan) {
-    redirect("/new-subscription");
-  }
+  if (!session?.user.clinic) return null;
 
   const patients = await db.query.patientsTable.findMany({
     where: eq(patientsTable.clinicId, session.user.clinic.id),
   });
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <PageHeaderContent>
-          <PageTitle>Pacientes</PageTitle>
-          <PageDescription>
-            Gerencie os pacientes de sua clínica
-          </PageDescription>
-        </PageHeaderContent>
-        <PageActions>
-          <AddPatientButton />
-        </PageActions>
-      </PageHeader>
-      <PageContent>
-        <DataTable data={patients} columns={patientsTableColumns} />
-      </PageContent>
-    </PageContainer>
+    <WithAuthentication mustHavePlan mustHaveClinic>
+      <PageContainer>
+        <PageHeader>
+          <PageHeaderContent>
+            <PageTitle>Pacientes</PageTitle>
+            <PageDescription>
+              Gerencie os pacientes de sua clínica
+            </PageDescription>
+          </PageHeaderContent>
+          <PageActions>
+            <AddPatientButton />
+          </PageActions>
+        </PageHeader>
+        <PageContent>
+          <DataTable data={patients} columns={patientsTableColumns} />
+        </PageContent>
+      </PageContainer>
+    </WithAuthentication>
   );
 }

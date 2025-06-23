@@ -9,10 +9,10 @@ import {
 } from "@components/ui/page-container";
 import { db } from "@db/index";
 import { appointmentsTable, doctorsTable, patientsTable } from "@db/schema";
+import { WithAuthentication } from "@hocs/with-authentication";
 import { auth } from "@lib/auth";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 
 import { AddAppointmentButton } from "./_components/add-appointment-button";
 import { appointmentsTableColumns } from "./_components/table-columns";
@@ -22,17 +22,7 @@ export default async function AppointmentsPage() {
     headers: await headers(),
   });
 
-  if (!session?.user) {
-    redirect("/authentication");
-  }
-
-  if (!session.user.clinic) {
-    redirect("/clinic-form");
-  }
-
-  if (!session.user.plan) {
-    redirect("/new-subscription");
-  }
+  if (!session?.user.clinic) return null;
 
   const [patients, doctors, appointments] = await Promise.all([
     db.query.patientsTable.findMany({
@@ -51,19 +41,21 @@ export default async function AppointmentsPage() {
   ]);
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <PageHeaderContent>
-          <PageTitle>Agendamentos</PageTitle>
-          <PageDescription>
-            Gerencie os agendamentos da sua clínica
-          </PageDescription>
-        </PageHeaderContent>
-        <AddAppointmentButton patients={patients} doctors={doctors} />
-      </PageHeader>
-      <PageContent>
-        <DataTable data={appointments} columns={appointmentsTableColumns} />
-      </PageContent>
-    </PageContainer>
+    <WithAuthentication mustHavePlan mustHaveClinic>
+      <PageContainer>
+        <PageHeader>
+          <PageHeaderContent>
+            <PageTitle>Agendamentos</PageTitle>
+            <PageDescription>
+              Gerencie os agendamentos da sua clínica
+            </PageDescription>
+          </PageHeaderContent>
+          <AddAppointmentButton patients={patients} doctors={doctors} />
+        </PageHeader>
+        <PageContent>
+          <DataTable data={appointments} columns={appointmentsTableColumns} />
+        </PageContent>
+      </PageContainer>
+    </WithAuthentication>
   );
 }
